@@ -8,6 +8,10 @@ const yargs = require('yargs');
 const {hideBin} = require('yargs/helpers');
 const {initRepo} = require('./controllers/init');
 const {addRepo} = require('./controllers/add');
+const {commitRepo} = require('./controllers/commit');
+const {pushRepo} = require('./controllers/push');
+const {pullRepo} = require('./controllers/pull');
+const {revertRepo} = require('./controllers/revert');
 
 yargs(hideBin(process.argv)).command('init', 
     'Initialize a new repository', //description
@@ -23,10 +27,35 @@ yargs(hideBin(process.argv)).command('init',
             });
         },
             addRepo
+    )
+
+.command('commit <message>', 
+    'Commit the staged files',
+    (yargs) => 
+        {
+            yargs.positional("message", {
+            describe: "commit message",
+            type: "string",
+            });
+        },
+            commitRepo
     
     
     )
-
-
+.command('push', 'push commits to s3', {}, pushRepo)
+.command('pull', 'pull commits from s3', {}, pullRepo)
+.command('revert <commitId>', 
+    'revert to a previous/specific commit',
+   (yargs) =>
+     {
+      yargs.positional("commitID",
+        {
+      describe: 'commit ID to revert to',
+      type: 'string',
+        });
+     },
+      revertRepo
+    )
+    
 .demandCommand(1, "you need at least one command ")
 .help().argv;
