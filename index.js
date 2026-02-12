@@ -13,20 +13,22 @@ const {pushRepo} = require('./controllers/push');
 const {pullRepo} = require('./controllers/pull');
 const {revertRepo} = require('./controllers/revert');
 
-yargs(hideBin(process.argv)).command('init', 
-    'Initialize a new repository', //description
-    {}, //parameter
-    initRepo // method to execute
-    )
-.command('add <file>', 
-    'Add a file to the repository',(yargs) => 
+yargs(hideBin(process.argv))
+.command("init", "Initialise a new repository", {}, initRepo )
+
+.command("add <file>", 
+    "Add a file to the repository",
+    (yargs) => 
         {
             yargs.positional("file", {
             describe: "file to add to the staging area",
             type: "string",
             });
-        },
-            addRepo
+        } ,
+        (argv) => {  //arguments jo command ke sath aa rhi h
+            addRepo (argv.file);
+        }
+            
     )
 
 .command('commit <message>', 
