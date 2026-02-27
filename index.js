@@ -40,17 +40,20 @@ yargs(hideBin(process.argv))
             type: "string",
             });
         },
-            commitRepo
+            (argv) => {
+        commitRepo(argv.message);   // 👈 only string passed
+        }
+)
+
     
-    
-    )
+
 .command('push', 'push commits to s3', {}, pushRepo)
 .command('pull', 'pull commits from s3', {}, pullRepo)
 .command('revert <commitId>', 
     'revert to a previous/specific commit',
    (yargs) =>
      {
-      yargs.positional("commitID",
+      yargs.positional("commitId",
         {
       describe: 'commit ID to revert to',
       type: 'string',
