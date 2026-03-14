@@ -1,5 +1,13 @@
-// controller code is written here means konsi command ko kaha redirect krna h
 
+const express = require("express");
+const dotenv = require("dotenv");  
+const mongoose = require("mongoose");
+const cors = require("cors");//cross origin resource sharing used  for security purpose
+ const bodyParser = require("body-parser"); //help us to read coming from req. and send data
+const http = require("http");
+const {Server} = require("socket.io"); //is a js library used for real-time communicatin between client and server
+
+// controller code is written here means konsi command ko kaha redirect krna h
 // hum  yargs ka use krte h command line argumentsn ko parse krne ke liye..
 const yargs = require('yargs');  
 
@@ -13,6 +21,8 @@ const {pushRepo} = require('./controllers/push');
 const {pullRepo} = require('./controllers/pull');
 const {revertRepo} = require('./controllers/revert');
 
+
+dotenv.config(); //jo values .env file me h unko process.env me load kr dega
 yargs(hideBin(process.argv))
 .command("start", "Starts a new Server", {},startServer)
 .command("init", "Initialise a new repository", {}, initRepo )
@@ -68,5 +78,52 @@ yargs(hideBin(process.argv))
 .demandCommand(1, "you need at least one command ")
 .help().argv;
 function startServer(){
-    console.log("server logic called!");
-}
+  const app = express();
+  const port = process.env.PORT || 3000;
+
+  
+  app.use(bodyParser.json());
+  app.use(express.json());
+
+  const mongoURL = process.env.MONGODB_URI;
+  mongoose.connect(mongoURL).
+  then(() => console.log("MongoDB connected!")).
+  catch((err) => console.error("Unable to connect :", err));
+    console.log()
+
+    //req. kisi bhi location ya url se aa skti h so treated as valid requst
+
+    app.use(cors({ origin: "*"}));
+    app.get("/",(req,res) =>{
+    res.send("Welcome!");
+    });
+
+
+    let user = "test";
+    const httpServer = http.createServer(app);
+    const io = new Server( httpServer, {
+        cors: {
+            origin: "*",
+            methods: ["GET", "POST"],
+        },
+        });
+
+        io.on("connection", (socket) => {
+            socket.on("joinRoom", (userID) => {
+                user = userID;
+                console.log("=====")
+                console.log(user);
+                console.log("=====")
+                socket.join(userID);
+            });
+        });
+        const db = mongoose.connection;
+
+        db.once("open", async() => {
+            console.log("CRUD operations called");
+            // CRUD operation
+        });
+        httpServer.listen(port, () => {
+            console.log(`Server is running on port ${port}`);
+        });
+  }
