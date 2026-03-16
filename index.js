@@ -6,6 +6,7 @@ const cors = require("cors");//cross origin resource sharing used  for security 
  const bodyParser = require("body-parser"); //help us to read coming from req. and send data
 const http = require("http");
 const {Server} = require("socket.io"); //is a js library used for real-time communicatin between client and server
+const mainRouter = require("./routes/main.router");
 
 // controller code is written here means konsi command ko kaha redirect krna h
 // hum  yargs ka use krte h command line argumentsn ko parse krne ke liye..
@@ -20,7 +21,6 @@ const {commitRepo} = require('./controllers/commit');
 const {pushRepo} = require('./controllers/push');
 const {pullRepo} = require('./controllers/pull');
 const {revertRepo} = require('./controllers/revert');
-
 
 dotenv.config(); //jo values .env file me h unko process.env me load kr dega
 yargs(hideBin(process.argv))
@@ -94,10 +94,7 @@ function startServer(){
     //req. kisi bhi location ya url se aa skti h so treated as valid requst
 
     app.use(cors({ origin: "*"}));
-    app.get("/",(req,res) =>{
-    res.send("Welcome!");
-    });
-
+    app.use("/", mainRouter);
 
     let user = "test";
     const httpServer = http.createServer(app);
