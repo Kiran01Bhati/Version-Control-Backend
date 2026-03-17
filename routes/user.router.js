@@ -10,3 +10,5 @@ userRouter.put("/updateProfile", userController.updateUsersProfile);
 userRouter.delete("/deleteProfile", userController.deleteUsersProfile);
 
 module.exports = userRouter;
+
+//"Kaunsi request → kaunsa function"

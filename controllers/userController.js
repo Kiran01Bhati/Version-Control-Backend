@@ -32,3 +32,10 @@ module.exports = {
     deleteUsersProfile,
 
 }
+
+/*
+DB se data fetch karega
+
+Validation karega
+
+Business logic handle karega*/
