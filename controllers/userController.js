@@ -2,6 +2,7 @@ const JWT = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const {MongoClient} = require('mongodb');
 const dotenv = require('dotenv');
+const ObjectId = require("mongodb").ObjectId
 
 
 dotenv.config(); //get access to the file .env
@@ -15,10 +16,6 @@ async function connectClient(){
             await client.connect();
     }
 }
-
-const  getAllUsers = (req,res) => {
-   
-};
 
 const signUp = async(req, res) => {
     const {username, password, email } = req.body;
@@ -49,7 +46,7 @@ const signUp = async(req, res) => {
     
     res.json({token});
     }catch(err) {
-        console.log("MONGO URI:", process.env.MONGODB_URL);
+        console.log("MONGO URI:", process.env.MONGODB_URI);
 console.error("Error during signup : ", err.message);
 res.status(500).send(("Server error"));
 }
@@ -83,16 +80,52 @@ async function login (req, res) {
     };
 };
 
+async function getAllUsers(req,res) {
+    
+ try{
 
-const  getUsersProfile= (req,res) => {
-    res.send("Profile fetched!");
+await connectClient();
+        const db = client.db("githubclone");
+        const usersCollection = db.collection("users");
+
+const users = await usersCollection.find({}).toArray(); //return a collection of Objects(array)
+res.json(users);
+ }
+catch(err){
+     console.log("Error during fetching : ", err.message);
+     res.status(500).send("Server error!");
+    }
+
 };
 
-const  updateUsersProfile = (req,res) => {
+ async function getUsersProfile(req,res) {
+    const currentID = req.params.id;   // URL se id params fetch krega  
+ try{
+await connectClient();
+        const db = client.db("githubclone");
+        const usersCollection = db.collection("users");
+const user = await usersCollection.findOne({
+ _id: new ObjectId(currentID)  //convert id(string) to object id 
+});
+
+
+  if(!user){
+            return res.status(400).json({message:"User Not Found!"});
+        }
+res.json(user);
+ }
+catch(err){
+     console.log("Error during fetching : ", err.message);
+     res.status(500).send("Server error!");
+    }
+};
+
+
+async function updateUsersProfile (req,res) {
     res.send("Profile updated!");
 };
 
-const  deleteUsersProfile = (req,res) => {
+async function deleteUsersProfile (req,res)  {
     res.send("Profile deleted!");
 };
 
