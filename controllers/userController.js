@@ -5,15 +5,12 @@ const dotenv = require('dotenv');
 
 
 dotenv.config();
-const uri = process.env.MONGODB_URL;
+const uri = process.env.MONGODB_URI;
 let client;
 
 async function connectClient(){
     if(!client){
-        client = new MongoClient(uri, 
-            {userNewUrlParser:true, 
-            useUnifiedTopology:true,
-            });
+        client = new MongoClient(uri);
             await client.connect();
     }
 }
@@ -22,7 +19,7 @@ const  getAllUsers = (req,res) => {
    
 };
 
-const signUp = (req, res) => {
+const signUp = async(req, res) => {
     const {username, password, email } = req.body;
     try{
         await connectClient();
@@ -47,8 +44,14 @@ const signUp = (req, res) => {
       }
       const result = await usersCollection.insertOne(newUser);
 
-      const token = JWT.sign({id:result.insertId})
-    }
+      const token = JWT.sign({id: result.insertedId}, process.env.JWT_SECRET_KEY, {expiresIn:"1h"});
+    
+    res.json({token});
+    }catch(err) {
+        console.log("MONGO URI:", process.env.MONGODB_URL);
+console.error("Error during signup : ", err.message);
+res.status(500).send(("Server error"));
+}
 };
 
 const login = (req, res) => {
