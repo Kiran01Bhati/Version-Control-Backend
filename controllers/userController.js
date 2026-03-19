@@ -4,10 +4,11 @@ const {MongoClient} = require('mongodb');
 const dotenv = require('dotenv');
 
 
-dotenv.config();
+dotenv.config(); //get access to the file .env
 const uri = process.env.MONGODB_URI;
 let client;
 
+//setup connection
 async function connectClient(){
     if(!client){
         client = new MongoClient(uri);
@@ -54,8 +55,32 @@ res.status(500).send(("Server error"));
 }
 };
 
-const login = (req, res) => {
-    res.send("logging in!");
+async function login (req, res) {
+    const{ email, password } = req.body;
+    try{
+
+        //eastablish connection
+        await connectClient();
+        const db = client.db("githubclone");
+        const usersCollection = db.collection("users");
+
+        //find user by credentials that means check to see that user is available
+        const user = await usersCollection.findOne({email});
+        if(!user){
+            return res.status(400).json({message:"Invalid Credentials!"});
+        }
+
+         const isMatch = await bcrypt.compare(password, user.password);
+        if(!isMatch){
+        return res.status(400).json({message:"Invalid Credentials!"});
+        }
+        
+        const token = JWT.sign({id:user._id}, process.env.JWT_SECRET_KEY, {expiresIn:"1h"});
+        res.json({token, userId:user._id});
+    }catch(err){
+     console.log("Error during login : ", err.message);
+     res.status(500).send("Server error!");
+    };
 };
 
 
