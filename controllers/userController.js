@@ -90,8 +90,7 @@ await connectClient();
 
 const users = await usersCollection.find({}).toArray(); //return a collection of Objects(array)
 res.json(users);
- }
-catch(err){
+ }catch (err){
      console.log("Error during fetching : ", err.message);
      res.status(500).send("Server error!");
     }
@@ -107,17 +106,16 @@ await connectClient();
 const user = await usersCollection.findOne({
  _id: new ObjectId(currentID)  //convert id(string) to object id 
 });
-
-
   if(!user){
             return res.status(400).json({message:"User Not Found!"});
         }
-res.json(user);
+            res.send(user);
  }
-catch(err){
+ catch (err){
      console.log("Error during fetching : ", err.message);
      res.status(500).send("Server error!");
     }
+
 };
 
 
