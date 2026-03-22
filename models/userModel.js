@@ -1,4 +1,4 @@
-const mongoose = rquire('mongoose');
+const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
 
 const UserSchema = new Schema({
@@ -41,3 +41,4 @@ starRepos: [{
 });
  // Create a model from the schema
 const User = mongoose.model('User', UserSchema);
+module.exports = User; 

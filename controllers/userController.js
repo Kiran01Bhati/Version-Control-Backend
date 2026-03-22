@@ -38,7 +38,7 @@ const signUp = async(req, res) => {
         email,
         repositories : [],
         followedUsers :[],
-        startRepos : []
+        starRepos : []
       }
       const result = await usersCollection.insertOne(newUser);
 
@@ -107,7 +107,7 @@ const user = await usersCollection.findOne({
  _id: new ObjectId(currentID)  //convert id(string) to object id 
 });
   if(!user){
-            return res.status(400).json({message:"User Not Found!"});
+            return res.status(404).json({message:"User Not Found!"});
         }
             res.send(user);
  }
@@ -120,11 +120,63 @@ const user = await usersCollection.findOne({
 
 
 async function updateUsersProfile (req,res) {
-    res.send("Profile updated!");
+    const currentID = req.params.id; // konse user kii profile update krni h 
+    const  {email, password} = req.body; //kya update krna h
+
+    try{
+    
+     await connectClient();
+        const db = client.db("githubclone");
+        const usersCollection = db.collection("users");
+        let updateFields = {email};
+        //agr password = true 
+        if(password){
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        updateFields.password = hashedPassword;
+     }
+
+      const result = await usersCollection.findOneAndUpdate({
+        _id: new ObjectId(currentID),
+      },
+      {$set: updateFields },
+      {returnDocument: "after"}
+    );
+    if(!result.value){
+        return res.status(404).json({ message: "User not found!"});
+    }
+    res.send(result.value);
+    }catch(err){
+   console.error("Error during updating : ",err.message);
+   res.status(500).send("server error!");
+
+    }
 };
 
 async function deleteUsersProfile (req,res)  {
-    res.send("Profile deleted!");
+   const currentID = req.params.id;
+
+   try{
+     await connectClient();
+        const db = client.db("githubclone");
+        const usersCollection = db.collection("users");
+
+        const result = await usersCollection.deleteOne({
+        _id: new ObjectId(currentID),
+
+        });
+
+        if(result.deleteCount == 0){
+        return res.status(404).json({ message: "User not found!"});
+    }
+     
+    res.json({message: "User Profile Deleted!"});
+   }catch (err){
+   console.error("Error during updating : ",err.message);
+   res.status(500).send("server error!");
+   }
+
+
 };
 
 module.exports = {
