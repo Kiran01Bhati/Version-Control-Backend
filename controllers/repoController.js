@@ -37,14 +37,53 @@
      res.status(500).send("Server error!");
     }
 };
+
  async function getAllRepositories (req, res) {
-    res.send("Repositries fetched!!");
+try{
+const repositories = await Repository.find({})
+.populate("owner")
+.populate("issues");
+
+res.json(repositories);
+
+}catch{
+        console.log("Error during  fetching repositoris! ", err.message);
+     res.status(500).send("Server error!");
+    }
 };
  async function fetchedRepositoryById (req, res){
-    res.send("Repository Details fetched!!");
+    const { id } = req.params;
+
+    try{
+    const repository = await Repository.find({_id: id})
+    //repository ka pura data show ho jaye
+    .populate("owner")
+    .populate("issues");
+    
+    
+    res.json(repository);
+    }catch(err){
+     console.log("Error during  fetching repositoris! ", err.message);
+     res.status(500).send("Server error!");
+     
+    }
 };
- async function fetchedRepositoryByName (req, res){
-    res.send("Repository Detais fetched!");
+
+  async function fetchedRepositoryByName (req, res){
+    const { name } = req.params;
+
+    try{
+    const repository = await Repository.find({ name })
+    //repository ka pura data show ho jaye
+    .populate("owner")
+    .populate("issues");
+
+    res.json(repository);
+    }catch(err){
+     console.log("Error during  fetching repositoris! ", err.message);
+     res.status(500).send("Server error!");
+     
+    };
 };
  async function fetchedRepositoriesForCurrentUser (req, res){
     res.send("Repository Details fetched!!");
@@ -74,4 +113,8 @@ fetchedRepositoriesForCurrentUser,
 };
 
 
-
+/*
+find({}) → sab repos fetch
+populate() → IDs ko actual data me convert
+res.json() → client ko response
+*/
