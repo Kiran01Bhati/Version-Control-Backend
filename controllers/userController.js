@@ -44,7 +44,7 @@ const signUp = async(req, res) => {
 
       const token = JWT.sign({id: result.insertedId}, process.env.JWT_SECRET_KEY, {expiresIn:"1h"});
     
-    res.json({token});
+    res.json({token, userId:result.insertedId});
     }catch(err) {
         console.log("MONGO URI:", process.env.MONGODB_URI);
 console.error("Error during signup : ", err.message);

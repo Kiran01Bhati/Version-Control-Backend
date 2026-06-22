@@ -173,7 +173,6 @@ getAllRepositories,
  fetchedRepositoryByName,
 fetchedRepositoriesForCurrentUser,
  updateRepositoryById,
- updateRepositoryByName,
  toggleVisibilityById,
   deleteRepositoryById,
 
